@@ -2,21 +2,36 @@
 
 Este guia foi criado para ajudar os estudantes do curso técnico de Desenvolvimento de Sistemas, na matéria de IoT, a montar o código do arquivo `main.cpp` de forma organizada e intuitiva.
 
-## Passo a Passo
+## 🛠️ Pré-requisitos
+- Framework PlatformIO instalado
+- Biblioteca PubSubClient (via PlatformIO Libraries)
+- ESP32 configurado no PlatformIO
+
+
+## 📋Passo a Passo
 
 ### 1. **Configuração Inicial**
 - **Objetivo**: Configurar o ambiente básico do projeto.
 - **O que fazer**:
     - Inclua as bibliotecas necessárias, como `<WiFi.h>` e `<PubSubClient.h>`.
+    ```cpp
+    //Bibliotecas já instaladas no framework PlatformIO
+    #include <Arduino.h>
+    #include <WiFiClientSecure.h>
+
+    //Bibliotecas baixadas do GitHub e adicionadas ao projeto
+    #include <PubSubClient.h>
+    ```
+    
+
+### 2. **Configuração do Cliente MQTT**
+- **Objetivo**: Preparar a comunicação com o broker MQTT.
+- **O que fazer**:
     - Defina as credenciais da rede Wi-Fi:
     ```cpp
     const char* ssid = "SEU_SSID";
     const char* password = "SUA_SENHA";
     ```
-
-### 2. **Configuração do Cliente MQTT**
-- **Objetivo**: Preparar a comunicação com o broker MQTT.
-- **O que fazer**:
     - Defina as credenciais do broker MQTT e a porta:
     ```cpp
     const char* broker = "BROKER";
@@ -45,39 +60,18 @@ Este guia foi criado para ajudar os estudantes do curso técnico de Desenvolvime
     }
     ```
 
-### 4. **Função `loop()`**
-- **Objetivo**: Manter o dispositivo em funcionamento contínuo.
-- **O que fazer**:
-    - Verifique a conexão MQTT e processe mensagens:
-    ```cpp
-    void loop() {
-        if (!WiFi.isConnected()) {
-            Serial.println("Conexão com WiFi perdida!");
-            connectToWiFi();
-        }
-        if (WiFi.isConnected() && !mqttClient.connected()) {
-            Serial.println("Conexão com Broker MQTT perdida!");
-            connectToMQTT();
-        } else {
-            String mensagem = "algumaCoisa";
-            mqttClient.publish("Topico", mensagem.c_str());
-        }
-    }
-    ```
-
-### 5. **Função de Conexão Wi-Fi**
+### 4. **Função de Conexão Wi-Fi**
 - **Objetivo**: Garantir que o dispositivo se conecte à rede Wi-Fi.
 - **O que fazer**:
     - Crie uma função chamada `connectToWiFi()`:
     ```cpp
-        void connectToWiFi() {
+    void connectToWiFi() {
         WiFi.begin(ssid, password);
         Serial.print("Conectando ao WiFi...");
         while (!WiFi.isConnected()) {
             delay(1000);
             Serial.print(".");
         }
-
         if (WiFi.isConnected()) {
             Serial.println("Conectado ao WiFi!");
         } else {
@@ -85,7 +79,7 @@ Este guia foi criado para ajudar os estudantes do curso técnico de Desenvolvime
         }
     }
     ```
-### 6. **Função de Reconexão MQTT**
+### 5. **Função de Reconexão MQTT**
 - **Objetivo**: Reconectar ao broker MQTT caso a conexão seja perdida.
 - **O que fazer**:
     - Crie uma função `reconnect()`:
@@ -112,7 +106,7 @@ Este guia foi criado para ajudar os estudantes do curso técnico de Desenvolvime
     }
     ```
 
-### 7. **Função de Callback MQTT**
+### 6. **Função de Callback MQTT**
 - **Objetivo**: Processar mensagens recebidas do broker MQTT.
 - **O que fazer**:
     - Crie uma função `callback()` para lidar com mensagens:
@@ -130,10 +124,92 @@ Este guia foi criado para ajudar os estudantes do curso técnico de Desenvolvime
     }
     ```
 
-### 8. **Testes**
+### 7. **Criar cabeçalhos de função no início do arquivo (após definições)**
+- **Objetivo**: Permitir que as funções criadas possam ser acessadas de qualquer parte do código.
+- **O que fazer**:
+    - Copie as declarações das funções criadas 
+        ```cpp 
+        void callback(char *subscribedTopic, byte *payload, int length);
+        void connectToMQTT();
+        void connectToWiFi();
+        ```
+    - Cole-as logo abaixo das importações de bibliotecas com `;` ao final
+
+### 8. **Função `loop()`**
+- **Objetivo**: Manter o dispositivo em funcionamento contínuo.
+- **O que fazer**:
+    - Verifique a conexão MQTT e processe mensagens:
+    ```cpp
+    void loop() {
+        if (!WiFi.isConnected()) {
+            Serial.println("Conexão com WiFi perdida!");
+            connectToWiFi();
+        }
+        if (WiFi.isConnected() && !mqttClient.connected()) {
+            Serial.println("Conexão com Broker MQTT perdida!");
+            connectToMQTT();
+        } else {
+            mqttClient.loop();
+
+            String mensagem = "algumaCoisa";
+            mqttClient.publish("Topico", mensagem.c_str());
+        }
+    }
+    ```
+
+### 9. **Testes**
 - **Objetivo**: Garantir que o código funcione corretamente.
 - **O que fazer**:
     - Compile e envie o código para o ESP32.
     - Verifique a saída no monitor serial para confirmar a conexão Wi-Fi e MQTT.
 
+### 🔐 **Boas práticas de segurança**
+- **Jamais dar commit em códigos que contém informações sensíveis como chaves de acesso**
+- **O que fazer nestes casos**: 
+    - Crie um arquivo chamado `secrets.h` ou `env.h`
+    - Inclua o nome deste arquivo (`secrets.h` ou `env.h`) no arquivo `.gitignore`
+    - Importe este arquivo no seu código 
+    ```cpp
+    //Bibliotecas já instaladas no framework PlatformIO
+    #include <Arduino.h>
+    #include <WiFiClientSecure.h>
+
+    //Bibliotecas baixadas do GitHub e adicionadas ao projeto
+    #include <PubSubClient.h>
+
+    //Arquivo que contém as chaves de acesso
+    #include "nomeDoArquivo.h"
+    ```
+    - Dentro deste arquivo defina as chaves de acesso desta maneira:
+    ```cpp
+    //Cria as definições caso não existam
+    #ifndef SECRETS_H
+    #define SECRETS_H
+    //       ou
+    //  #ifndef ENV_H
+    //  #define ENV_H
+
+    //Define os valores
+    #define SSID "SEU_WIFI"
+    #define PASSWORD "SUA_SENHA"
+
+    #define BROKER "BROKER";
+    #define PORT 8883;
+
+    #define MQTT_CLIENT_ID "ID_UNICO_DA_PLACA";
+    #define MQTT_USER "SEU_USUARIO";
+    #define MQTT_PASSWORD "SUA_SENHA";
+
+    #endif
+    ```
+    - No código você utilizara as variáveis respectivas definidas dentro deste arquivo
+    ```cpp
+    void setup() {
+        WiFi.begin(SSID, PASSWORD);  // Acesso seguro às credenciais
+        
+        // Configuração MQTT segura
+        client.setServer(BROKER, PORT);
+        client.connect(MQTT_CLIENT_ID, MQTT_USER, MQTT_PASS);
+    }
+    ```
 Com este guia, você terá um código funcional e bem estruturado para o seu projeto IoT. Boa sorte!
