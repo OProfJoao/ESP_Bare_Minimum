@@ -13,7 +13,7 @@
 
 void connectToWiFi();
 void connectToMQTT();
-void callback(char *topic, byte *payload, int length);
+void callback(char* topic, byte* payload, int length);
 
 //!---------------------       Definições de Constantes ---------------------
 
@@ -23,7 +23,7 @@ PubSubClient mqttClient(WiFiClient);
 const char* ssid = "SEU_SSID";
 const char* password = "SUA_SENHA";
 
-const char* broker = "BROKER";
+const char* broker = "broker.exemplo.com";
 const int port = 8883;
 
 const char* board_ID = "ID_UNICO_DA_PLACA";
@@ -49,6 +49,8 @@ void loop() {
     Serial.println("Conexão com Broker MQTT perdida!");
     connectToMQTT();
   } else {
+    mqttClient.loop();
+    
     String mensagem = "algumaCoisa";
     mqttClient.publish("Topico", mensagem.c_str());
   }
@@ -92,7 +94,7 @@ void connectToMQTT() {
   }
 }
 
-void callback(char *subscribedTopic, byte *payload, int length) {
+void callback(char* subscribedTopic, byte* payload, int length) {
   String mensagem;
   String topicStr = subscribedTopic;
 
