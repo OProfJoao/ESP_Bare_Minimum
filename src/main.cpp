@@ -20,6 +20,17 @@ void callback(char *topic, byte *payload, int length);
 WiFiClientSecure WiFiClient;
 PubSubClient mqttClient(WiFiClient);
 
+const char* ssid = "SEU_SSID";
+const char* password = "SUA_SENHA";
+
+const char* broker = "BROKER";
+const int port = 8883;
+
+const char* board_ID = "ID_UNICO_DA_PLACA";
+const char* mqtt_user = "SEU_USUARIO";
+const char* mqtt_password = "SUA_SENHA";
+const char* topic = "Topico";
+
 //!---------------------       Loops Principais        ---------------------
 
 void setup() {
@@ -46,7 +57,7 @@ void loop() {
 //!---------------------       Funções        ---------------------
 
 void connectToWiFi() {
-  WiFi.begin("SSID", "SENHA");
+  WiFi.begin(ssid, password);
   Serial.print("Conectando ao WiFi...");
   while (!WiFi.isConnected()) {
     delay(1000);
@@ -61,12 +72,12 @@ void connectToWiFi() {
 }
 
 void connectToMQTT() {
-  mqttClient.setServer("broker.hivemq.com", 8883);
+  mqttClient.setServer(broker, port);
 
   while (!mqttClient.connected()) {
     Serial.print("Conectando ao Broker MQTT...");
-    if (mqttClient.connect("ID_Unico", "Usuario", "Senha")) {
-      mqttClient.subscribe("topico/teste");
+    if (mqttClient.connect(board_ID, mqtt_user, mqtt_password)) {
+      mqttClient.subscribe(topic);
       mqttClient.setCallback(callback);
 
       Serial.println("Conectado ao Broker MQTT");
@@ -81,9 +92,9 @@ void connectToMQTT() {
   }
 }
 
-void callback(char *topic, byte *payload, int length) {
+void callback(char *subscribedTopic, byte *payload, int length) {
   String mensagem;
-  String topicStr = topic;
+  String topicStr = subscribedTopic;
 
   for (int i = 0; i < length; i++) {
     char c = (char)payload[i];
