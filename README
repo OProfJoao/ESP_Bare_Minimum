@@ -163,8 +163,6 @@ Este guia foi criado para ajudar os estudantes do curso técnico de Desenvolvime
     - Compile e envie o código para o ESP32.
     - Verifique a saída no monitor serial para confirmar a conexão Wi-Fi e MQTT.
 
-Com este guia, você terá um código funcional e bem estruturado para o seu projeto IoT. Boa sorte!
-
 ### 🔐 **Boas práticas de segurança**
 - **Jamais dar commit em códigos que contém informações sensíveis como chaves de acesso**
 - **O que fazer nestes casos**: 
@@ -214,3 +212,4 @@ Com este guia, você terá um código funcional e bem estruturado para o seu pro
         client.connect(MQTT_CLIENT_ID, MQTT_USER, MQTT_PASS);
     }
     ```
+Com este guia, você terá um código funcional e bem estruturado para o seu projeto IoT. Boa sorte!
