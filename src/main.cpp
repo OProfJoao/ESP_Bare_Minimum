@@ -1,5 +1,7 @@
-//!--------------------------------------------------------------------------
-//! Inclusões de bibliotecas
+
+
+//!---------------------       Inclusões de bibliotecas ---------------------
+
 //? Bibliotecas já instaladas no framework PlatformIO
 #include <Arduino.h>
 #include <WiFiClientSecure.h>
@@ -7,21 +9,18 @@
 //? Bibliotecas baixadas do GitHub e adicionadas ao projeto
 #include <PubSubClient.h>
 
-//!--------------------------------------------------------------------------
-//! Cabeçalhos de funções
+//!---------------------       Cabeçalho de Funções        ---------------------
 
 void connectToWiFi();
 void connectToMQTT();
-void callback(char *topic, byte *payload, unsigned int length);
+void callback(char *topic, byte *payload, int length);
 
-//!--------------------------------------------------------------------------
-//! Constantes
+//!---------------------       Definições de Constantes ---------------------
 
 WiFiClientSecure WiFiClient;
 PubSubClient mqttClient(WiFiClient);
 
-//!--------------------------------------------------------------------------
-//! Main Loops
+//!---------------------       Loops Principais        ---------------------
 
 void setup() {
   Serial.begin(115200);
@@ -30,10 +29,21 @@ void setup() {
   connectToMQTT();
 }
 
-void loop() {}
+void loop() {
+  if(!WiFi.isConnected()){
+    Serial.println("Conexão com WiFi perdida!");
+    connectToWiFi();
+  }
+  if(WiFi.isConnected() && !mqttClient.connected()){
+    Serial.println("Conexão com Broker MQTT perdida!");
+    connectToMQTT();
+  } else{
+    String mensagem = "algumaCoisa";
+    mqttClient.publish("Topico", mensagem.c_str());                                       //
+  }
+}
 
-//!--------------------------------------------------------------------------
-//! Funções
+//!---------------------       Funções        ---------------------
 
 void connectToWiFi() {
   WiFi.begin("SSID", "SENHA");
@@ -55,7 +65,7 @@ void connectToMQTT() {
 
   while (!mqttClient.connected()) {
     Serial.print("Conectando ao Broker MQTT...");
-    if (mqttClient.connect("ID_Unico","Usuario","Senha")) {
+    if (mqttClient.connect("ID_Unico", "Usuario", "Senha")) {
       mqttClient.subscribe("topico/teste");
       mqttClient.setCallback(callback);
 
@@ -68,5 +78,18 @@ void connectToMQTT() {
       delay(2000);
       Serial.println("Tentando novamente...");
     }
+  }
+}
+
+void callback(char *topic, byte *payload, int length) {
+  String mensagem;
+  String topicStr = topic;
+
+  for (int i = 0; i < length; i++) {
+    char c = (char)payload[i];
+    mensagem += c;
+  }
+  if (mensagem == "algumaCoisa") {
+    //* Executa um comando
   }
 }
