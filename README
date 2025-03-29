@@ -10,96 +10,124 @@ Este guia foi criado para ajudar os estudantes do curso técnico de Desenvolvime
       - Inclua as bibliotecas necessárias, como `<WiFi.h>` e `<PubSubClient.h>`.
       - Defina as credenciais da rede Wi-Fi:
          ```cpp
-         const char* ssid = "SEU_SSID";
-         const char* password = "SUA_SENHA";
+        const char* ssid = "SEU_SSID";
+        const char* password = "SUA_SENHA";
          ```
 
 ### 2. **Configuração do Cliente MQTT**
     - **Objetivo**: Preparar a comunicação com o broker MQTT.
     - **O que fazer**:
-      - Declare o endereço do broker MQTT e a porta:
+      - Defina as credenciais do broker MQTT e a porta:
          ```cpp
-         const char* mqtt_server = "BROKER_MQTT";
+        const char* broker = "BROKER";
+        const int port = 8883;
+
+        const char* board_ID = "ID_UNICO_DA_PLACA";
+        const char* mqtt_user = "SEU_USUARIO";
+        const char* mqtt_password = "SUA_SENHA";
+        const char* topic = "Topico";
          ```
       - Crie objetos para o cliente Wi-Fi e MQTT:
          ```cpp
          WiFiClient espClient;
          PubSubClient client(espClient);
          ```
-
-### 3. **Função de Conexão Wi-Fi**
-    - **Objetivo**: Garantir que o dispositivo se conecte à rede Wi-Fi.
-    - **O que fazer**:
-      - Crie uma função chamada `setup_wifi()`:
-         ```cpp
-         void setup_wifi() {
-              delay(10);
-              Serial.println("Conectando ao WiFi...");
-              WiFi.begin(ssid, password);
-              while (WiFi.status() != WL_CONNECTED) {
-                    delay(500);
-                    Serial.print(".");
-              }
-              Serial.println("Conectado!");
-         }
-         ```
-
-### 4. **Função de Callback MQTT**
-    - **Objetivo**: Processar mensagens recebidas do broker MQTT.
-    - **O que fazer**:
-      - Crie uma função `callback()` para lidar com mensagens:
-         ```cpp
-         void callback(char* topic, byte* payload, unsigned int length) {
-              Serial.print("Mensagem recebida em: ");
-              Serial.println(topic);
-              // Processar payload
-         }
-         ```
-
-### 5. **Função de Reconexão MQTT**
-    - **Objetivo**: Reconectar ao broker MQTT caso a conexão seja perdida.
-    - **O que fazer**:
-      - Crie uma função `reconnect()`:
-         ```cpp
-         void reconnect() {
-              while (!client.connected()) {
-                    Serial.print("Tentando conectar ao MQTT...");
-                    if (client.connect("ESP32Client")) {
-                         Serial.println("Conectado!");
-                         client.subscribe("topico/teste");
-                    } else {
-                         Serial.print("Falha, rc=");
-                         Serial.print(client.state());
-                         delay(5000);
-                    }
-              }
-         }
-         ```
-
-### 6. **Função `setup()`**
+### 3. **Função `setup()`**
     - **Objetivo**: Inicializar o dispositivo.
     - **O que fazer**:
       - Configure a comunicação serial e chame as funções de inicialização:
          ```cpp
-         void setup() {
-              Serial.begin(115200);
-              setup_wifi();
-              client.setServer(mqtt_server, 1883);
-              client.setCallback(callback);
-         }
+        void setup() {
+            Serial.begin(115200);
+
+            connectToWiFi();
+            connectToMQTT();
+        }
          ```
 
-### 7. **Função `loop()`**
+### 4. **Função `loop()`**
     - **Objetivo**: Manter o dispositivo em funcionamento contínuo.
     - **O que fazer**:
       - Verifique a conexão MQTT e processe mensagens:
          ```cpp
-         void loop() {
-              if (!client.connected()) {
-                    reconnect();
-              }
-              client.loop();
-         }
+        void loop() {
+            if (!WiFi.isConnected()) {
+                Serial.println("Conexão com WiFi perdida!");
+                connectToWiFi();
+            }
+            if (WiFi.isConnected() && !mqttClient.connected()) {
+                Serial.println("Conexão com Broker MQTT perdida!");
+                connectToMQTT();
+            } else {
+                String mensagem = "algumaCoisa";
+                mqttClient.publish("Topico", mensagem.c_str());
+            }
+        }
+         ```
+
+### 5. **Função de Conexão Wi-Fi**
+    - **Objetivo**: Garantir que o dispositivo se conecte à rede Wi-Fi.
+    - **O que fazer**:
+      - Crie uma função chamada `connectToWiFi()`:
+         ```cpp
+         void connectToWiFi() {
+            WiFi.begin(ssid, password);
+            Serial.print("Conectando ao WiFi...");
+            while (!WiFi.isConnected()) {
+                delay(1000);
+                Serial.print(".");
+            }
+
+            if (WiFi.isConnected()) {
+                Serial.println("Conectado ao WiFi!");
+            } else {
+                Serial.println("Falha ao conectar ao WiFi!");
+            }
+        }
+         ```
+### 6. **Função de Reconexão MQTT**
+    - **Objetivo**: Reconectar ao broker MQTT caso a conexão seja perdida.
+    - **O que fazer**:
+      - Crie uma função `reconnect()`:
+         ```cpp
+        void connectToMQTT() {
+            mqttClient.setServer(broker, port);
+
+            while (!mqttClient.connected()) {
+                Serial.print("Conectando ao Broker MQTT...");
+                if (mqttClient.connect(board_ID, mqtt_user, mqtt_password)) {
+                    mqttClient.subscribe(topic);
+                    mqttClient.setCallback(callback);
+
+                    Serial.println("Conectado ao Broker MQTT");
+                    Serial.println("Inscrito no tópico: topico/teste");
+                } else {
+                    Serial.println("Falha ao conectar ao Broker MQTT");
+                    Serial.print("Erro: ");
+                    Serial.println(mqttClient.state());
+                    delay(2000);
+                    Serial.println("Tentando novamente...");
+                }
+            }
+        }
+         ```
+
+### 7. **Função de Callback MQTT**
+    - **Objetivo**: Processar mensagens recebidas do broker MQTT.
+    - **O que fazer**:
+      - Crie uma função `callback()` para lidar com mensagens:
+         ```cpp
+        void callback(char *subscribedTopic, byte *payload, int length) {
+            String mensagem;
+            String topicStr = subscribedTopic;
+            for (int i = 0; i < length; i++) {
+                char c = (char)payload[i];
+                mensagem += c;
+            }
+            if (mensagem == "algumaCoisa") {
+                //* Executa um comando
+            }
+        }
          ```
 
 ### 8. **Testes**
