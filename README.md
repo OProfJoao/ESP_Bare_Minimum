@@ -159,13 +159,15 @@ Este guia foi criado para ajudar os estudantes do curso técnico de Desenvolvime
 
 ### 9. **Testes**
 - **Objetivo**: Garantir que o código funcione corretamente.
+
 - **O que fazer**:
     - Compile e envie o código para o ESP32.
     - Verifique a saída no monitor serial para confirmar a conexão Wi-Fi e MQTT.
-
+    
 ### 🔐 **Boas práticas de segurança**
-- **Jamais dar commit em códigos que contém informações sensíveis como chaves de acesso**
-- **O que fazer nestes casos**: 
+- Em códigos em produção, é estritamente proibido _commitar_ códigos para o GitHub contendo senhas ou chaves de acesso.
+
+- **O que fazer**: Para melhorar ainda mais o nosso código e adicionar uma camada de segurança podemos executar os seguintes passos: 
     - Crie um arquivo chamado `secrets.h` ou `env.h`
     - Inclua o nome deste arquivo (`secrets.h` ou `env.h`) no arquivo `.gitignore`
     - Importe este arquivo no seu código 
