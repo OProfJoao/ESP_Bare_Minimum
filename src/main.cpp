@@ -55,7 +55,7 @@ void connectToMQTT() {
 
   while (!mqttClient.connected()) {
     Serial.print("Conectando ao Broker MQTT...");
-    if (mqttClient.connect("ID_Unico")) {
+    if (mqttClient.connect("ID_Unico","Usuario","Senha")) {
       mqttClient.subscribe("topico/teste");
       mqttClient.setCallback(callback);
 
