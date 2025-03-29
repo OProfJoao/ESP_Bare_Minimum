@@ -30,16 +30,16 @@ void setup() {
 }
 
 void loop() {
-  if(!WiFi.isConnected()){
+  if (!WiFi.isConnected()) {
     Serial.println("Conexão com WiFi perdida!");
     connectToWiFi();
   }
-  if(WiFi.isConnected() && !mqttClient.connected()){
+  if (WiFi.isConnected() && !mqttClient.connected()) {
     Serial.println("Conexão com Broker MQTT perdida!");
     connectToMQTT();
-  } else{
+  } else {
     String mensagem = "algumaCoisa";
-    mqttClient.publish("Topico", mensagem.c_str());                                       //
+    mqttClient.publish("Topico", mensagem.c_str());
   }
 }
 
