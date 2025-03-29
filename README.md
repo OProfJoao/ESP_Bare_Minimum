@@ -1,6 +1,6 @@
 # Guia para Montar o Código do `main.cpp`
 
-Este guia foi criado para ajudar os estudantes do curso técnico de Desenvolvimento de Sistemas, na matéria de IoT, a montar o código do arquivo `main.cpp` de forma organizada e intuitiva.
+Este guia foi criado para ajudar a programar um cliente MQTT básico utilizando um ESP32.
 
 ## 🛠️ Pré-requisitos
 - Framework PlatformIO instalado
