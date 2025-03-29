@@ -163,55 +163,72 @@ Este guia foi criado para ajudar os estudantes do curso técnico de Desenvolvime
 - **O que fazer**:
     - Compile e envie o código para o ESP32.
     - Verifique a saída no monitor serial para confirmar a conexão Wi-Fi e MQTT.
-    
+
 ### 🔐 **Boas práticas de segurança**
-- Em códigos em produção, é estritamente proibido _commitar_ códigos para o GitHub contendo senhas ou chaves de acesso.
+Em códigos de produção, é estritamente proibido _commitar_ informações sensíveis (como senhas e chaves de acesso) para repositórios públicos, como o GitHub.
 
-- **O que fazer**: Para melhorar ainda mais o nosso código e adicionar uma camada de segurança podemos executar os seguintes passos: 
-    - Crie um arquivo chamado `secrets.h` ou `env.h`
-    - Inclua o nome deste arquivo (`secrets.h` ou `env.h`) no arquivo `.gitignore`
-    - Importe este arquivo no seu código 
-    ```cpp
-    //Bibliotecas já instaladas no framework PlatformIO
-    #include <Arduino.h>
-    #include <WiFiClientSecure.h>
+#### O que fazer
+Para proteger essas informações, siga os seguintes passos:
 
-    //Bibliotecas baixadas do GitHub e adicionadas ao projeto
-    #include <PubSubClient.h>
+1. **Crie um arquivo de configuração**
 
-    //Arquivo que contém as chaves de acesso
-    #include "nomeDoArquivo.h"
-    ```
-    - Dentro deste arquivo defina as chaves de acesso desta maneira:
-    ```cpp
-    //Cria as definições caso não existam
-    #ifndef SECRETS_H
-    #define SECRETS_H
-    //       ou
-    //  #ifndef ENV_H
-    //  #define ENV_H
+    Crie um arquivo chamado `secrets.h` ou `env.h`
 
-    //Define os valores
-    #define SSID "SEU_WIFI"
-    #define PASSWORD "SUA_SENHA"
+2. **Adicione o arquivo ao `.gitignore`** 
 
-    #define BROKER "BROKER";
-    #define PORT 8883;
+    Inclua o nome deste arquivo (`secrets.h` ou `env.h`) no arquivo `.gitignore`
 
-    #define MQTT_CLIENT_ID "ID_UNICO_DA_PLACA";
-    #define MQTT_USER "SEU_USUARIO";
-    #define MQTT_PASSWORD "SUA_SENHA";
+3. **Inclua o arquivo de configuração no seu código**
 
-    #endif
-    ```
-    - No código você utilizara as variáveis respectivas definidas dentro deste arquivo
-    ```cpp
-    void setup() {
-        WiFi.begin(SSID, PASSWORD);  // Acesso seguro às credenciais
-        
-        // Configuração MQTT segura
-        client.setServer(BROKER, PORT);
-        client.connect(MQTT_CLIENT_ID, MQTT_USER, MQTT_PASS);
-    }
-    ```
-Com este guia, você terá um código funcional e bem estruturado para o seu projeto IoT. Boa sorte!
+    Importe este arquivo no seu código 
+```cpp
+//Bibliotecas já instaladas no framework PlatformIO
+#include <Arduino.h>
+#include <WiFiClientSecure.h>
+
+//Bibliotecas baixadas do GitHub e adicionadas ao projeto
+#include <PubSubClient.h>
+
+//Arquivo que contém as chaves de acesso
+#include "nomeDoArquivo.h"
+```
+4. **Defina as credenciais dentro do arquivo de configuração**
+
+    Utilize _include guards_ para evitar múltiplas inclusões e defina suas chaves **sem utilizar ponto-e-vírgula** (;):
+```cpp
+//Cria as definições caso não existam
+#ifndef SECRETS_H
+#define SECRETS_H
+//       ou
+//  #ifndef ENV_H
+//  #define ENV_H
+
+//Define os valores
+#define SSID "SEU_WIFI"
+#define PASSWORD "SUA_SENHA"
+
+#define BROKER "BROKER"
+#define PORT 8883
+
+#define MQTT_CLIENT_ID "ID_UNICO_DA_PLACA"
+#define MQTT_USER "SEU_USUARIO"
+#define MQTT_PASSWORD "SUA_SENHA"
+
+#endif
+```
+5. **Utilize as variáveis no seu código**
+
+    No código você utilizara as definições importadas, por exemplo:
+
+```cpp
+void setup() {
+    WiFi.begin(SSID, PASSWORD);  // Acesso seguro às credenciais
+    
+    // Configuração MQTT segura
+    client.setServer(BROKER, PORT);
+    client.connect(MQTT_CLIENT_ID, MQTT_USER, MQTT_PASS);
+}
+```
+
+
+Com este guia, você terá um código funcional, seguro e bem estruturado para o seu projeto IoT. Boa sorte!
