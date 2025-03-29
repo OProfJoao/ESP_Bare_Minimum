@@ -172,7 +172,7 @@ Para proteger essas informações, siga os seguintes passos:
 
 1. **Crie um arquivo de configuração**
 
-    Crie um arquivo chamado `secrets.h` ou `env.h`
+    Crie um arquivo chamado `secrets.h` ou `env.h` dentro da pasta `include` do seu projeto do PlatformIO
 
 2. **Adicione o arquivo ao `.gitignore`** 
 
@@ -218,7 +218,7 @@ Para proteger essas informações, siga os seguintes passos:
 ```
 5. **Utilize as variáveis no seu código**
 
-    No código você utilizara as definições importadas, por exemplo:
+    No código você utilizara as definições importadas como no exemplo:
 
 ```cpp
 void setup() {
