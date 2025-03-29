@@ -1,0 +1,24 @@
+# README
+
+Esta pasta tem como objetivo listar e documentar as bibliotecas utilizadas no código principal deste projeto. Aqui você encontrará informações importantes para garantir que o programa funcione corretamente.
+
+## Objetivo deste arquivo
+
+Este arquivo serve como um guia para organizar e documentar as bibliotecas necessárias no projeto. Ele ajuda a manter o código mais estruturado e facilita o entendimento por parte de outros desenvolvedores ou estudantes.
+
+## Como usar este arquivo
+
+1. Liste as bibliotecas que serão utilizadas no projeto, incluindo uma breve descrição e o link para a documentação oficial.
+2. Certifique-se de que todas as dependências necessárias estão instaladas e configuradas corretamente.
+3. Consulte a [documentação oficial do GCC sobre arquivos de cabeçalho](https://gcc.gnu.org/onlinedocs/cpp/Header-Files.html) para entender como os arquivos de cabeçalho funcionam.
+
+## Informações importantes
+
+- As bibliotecas incluídas nesta pasta são automaticamente compiladas pelo PlatformIO.
+- Certifique-se de que as versões das bibliotecas são compatíveis com o código do projeto.
+
+## Bibliotecas incluídas
+
+- [PubSubClient](https://pubsubclient.knolleary.net/) - Biblioteca para comunicação MQTT, utilizada para enviar e receber mensagens em redes IoT.
+
+Se precisar de ajuda adicional, consulte a documentação oficial de cada biblioteca ou peça suporte ao seu instrutor.
